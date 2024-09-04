@@ -20,7 +20,7 @@ public class ThreadReader extends Thread
      */
     public ThreadReader(String fileName) throws IOException
     {
-        System.out.println(">>> Creating reader thread with file name: " + fileName);
+        System.out.println("Creating reader thread with file name: " + fileName);
         reader = new A1Reader(fileName);
     }
 
@@ -47,7 +47,6 @@ public class ThreadReader extends Thread
 
                 FileConverter.INPUT_BUFFER.set(c);
             }
-            System.out.println("Thread finished reading from file!");
             FileConverter.INPUT_BUFFER.end();
         }
         catch (Exception e)
@@ -58,6 +57,5 @@ public class ThreadReader extends Thread
         {
             reader.close();
         }
-        System.out.println("<<< Exiting reader thread");
     }
 }

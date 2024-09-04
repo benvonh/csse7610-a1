@@ -14,7 +14,7 @@ public class ThreadProcessor extends Thread
      */
     public ThreadProcessor()
     {
-        System.out.println(">>> Creating processor thread");
+        System.out.println("Creating processor thread");
     }
 
     /**
@@ -28,9 +28,15 @@ public class ThreadProcessor extends Thread
     {
         try
         {
-            while (!FileConverter.INPUT_BUFFER.done())
+            while (true)
             {
-                char c = FileConverter.INPUT_BUFFER.get();
+                int c = FileConverter.INPUT_BUFFER.get();
+
+                // Buffer is done
+                if (c < 0)
+                {
+                    break;
+                }
 
                 if (Character.isWhitespace(c))
                 {
@@ -43,16 +49,13 @@ public class ThreadProcessor extends Thread
                         whitespace = false;
                         FileConverter.OUTPUT_BUFFER.set(' ');
                     }
-                    FileConverter.OUTPUT_BUFFER.set(c);
+                    FileConverter.OUTPUT_BUFFER.set((char)c);
                 }
             }
-            System.out.println("Thread finished processing buffer!");
             FileConverter.OUTPUT_BUFFER.end();
         }
         catch (Exception e)
         {
-            System.out.println("Caught exception: " + e.getMessage());
         }
-        System.out.println("<<< Exiting processor thread");
     }
 }

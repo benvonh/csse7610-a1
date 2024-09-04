@@ -20,20 +20,33 @@ public class CircularBuffer
     /**
      * Get the next data from the buffer.
      * 
-     * @return last char added
+     * @return last char added or -1 if buffer is done
      */
-    public char get()
+    public int get()
     {
         char c;
-        boolean block = true;
 
-        while (block)
+        while (true)
         {
+            boolean block;
+
             Thread.yield();
 
             synchronized (this)
             {
-                block = in == out && !finished.get();
+                block = in == out;
+            }
+
+            if (block)
+            {
+                if (finished.get())
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                break;
             }
         }
 
@@ -86,21 +99,5 @@ public class CircularBuffer
     public void end()
     {
         finished.set(true);
-    }
-
-    /**
-     * Check if the buffer has ended.
-     * 
-     * @return whether the buffer is done
-     */
-    public boolean done()
-    {
-        boolean b;
-
-        synchronized (this)
-        {
-            b = finished.get() && in == out;
-        }
-        return b;
     }
 }
