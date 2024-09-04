@@ -1,25 +1,61 @@
 import java.io.IOException;
 
+/**
+ * Benjamin von Snarski - 45287008
+ * 
+ * Reads characters from the input file using A1Reader
+ * and replaces newline characters with spaces.
+ */
 public class ThreadReader extends Thread
 {
-    private A1Reader M_reader;
+    // The file reader
+    private A1Reader reader;
 
+    /**
+     * Construct a thread for reading from a file
+     * and loading it into the INPUT buffer.
+     * 
+     * @param fileName name of the input file
+     * @throws IOException file reader fails
+     */
     public ThreadReader(String fileName) throws IOException
     {
-        M_reader = new A1Reader(fileName);
+        System.out.println("Creating reader thread with file name: " + fileName);
+        reader = new A1Reader(fileName);
     }
 
+    /**
+     * Read each character from a file, replaces newlines with spaces
+     * and loads it to the INPUT buffer in the file converter.
+     * Ends the INPUT buffer when read no longer returns a character.
+     */
     @Override
     public void run()
     {
         try
         {
-            System.out.println("Hi! I am thread reader!");
-            sleep(2000);
+            int i;
+
+            while ((i = reader.read()) != -1)
+            {
+                char c = (char)i;
+
+                if (c == '\n')
+                {
+                    c = ' ';
+                }
+
+                FileConverter.INPUT_BUFFER.set(c);
+            }
+            FileConverter.INPUT_BUFFER.end();
         }
         catch (Exception e)
         {
-            // TODO: handle exception
+            System.out.println("Cleaning reader thread...");
+        }
+        finally
+        {
+            reader.close();
         }
     }
 }

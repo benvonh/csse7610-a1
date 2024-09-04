@@ -1,26 +1,53 @@
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
+/**
+ * Benjamin von Snarski - 45287008
+ * 
+ * Entry point to the file converter program.
+ * Contains two global circular buffer for communicating
+ * characters between three threads.
+ */
 public class FileConverter
 {
-    public static void main(String[] args) throws IOException, InterruptedException
+    // To be used by the reader and processor threads
+    public static CircularBuffer INPUT_BUFFER = new CircularBuffer();
+    // To be used by the processor and writer threads
+    public static CircularBuffer OUTPUT_BUFFER = new CircularBuffer();
+
+    public static void main(String[] args)
     {
-        System.out.println("Running File Converter...");
+        System.out.println("\nRunning File Converter...");
 
-        ThreadReader threadReader = new ThreadReader("source_v2.txt");
-        ThreadWriter threadWriter = new ThreadWriter("test.txt");
-        ThreadProcessor threadProcessor = new ThreadProcessor();
+        ThreadReader threadReader;
+        ThreadWriter threadWriter;
+        ThreadProcessor threadProcessor;
 
-        threadReader.run();
-        threadWriter.run();
-        threadProcessor.run();
+        try
+        {
+            threadReader = new ThreadReader("source_v2.txt");
+            threadWriter = new ThreadWriter("test.txt");
+            threadProcessor = new ThreadProcessor();
+        }
+        catch (Exception e)
+        {
+            System.out.println("\nError: Failed to instantiate thread objects.");
+            System.out.println(e.toString());
+            return;
+        }
 
-        TimeUnit.SECONDS.sleep(5);
+        threadReader.start();
+        threadWriter.start();
+        threadProcessor.start();
 
-        threadReader.join();
-        threadWriter.join();
-        threadProcessor.join();
+        try
+        {
+            threadReader.join();
+            threadWriter.join();
+            threadProcessor.join();
+        }
+        catch (Exception e)
+        {
+            System.out.println("\nError: Failed to join thread objects.");
+        }
 
-        System.out.println("Finished Converting Files...");
+        System.out.println("\nFinished Converting Files!");
     }
 }
