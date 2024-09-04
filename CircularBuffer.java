@@ -1,3 +1,5 @@
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Benjamin von Snarski - 45287008
  * 
@@ -13,7 +15,7 @@ public class CircularBuffer
     // Buffer as an array of char primitives
     private char[] buffer = new char[SIZE];
     // Flag for when no more char will be added
-    private boolean stopped = false;
+    private AtomicBoolean finished = new AtomicBoolean(false);
 
     /**
      * Get the next data from the buffer.
@@ -22,13 +24,28 @@ public class CircularBuffer
      */
     public char get()
     {
-        Thread.yield();
+        char c;
+        boolean block = true;
 
-        while (in == out) {}
+        while (block)
+        {
+            Thread.yield();
 
-        char c = buffer[out];
+            synchronized (this)
+            {
+                block = in == out && !finished.get();
+            }
+        }
 
-        out = (out + 1) % CircularBuffer.SIZE;
+        synchronized (this)
+        {
+            c = buffer[out];
+        }
+
+        synchronized (this)
+        {
+            out = (out + 1) % CircularBuffer.SIZE;
+        }
 
         return c;
     }
@@ -40,13 +57,27 @@ public class CircularBuffer
      */
     public void set(char c)
     {
-        Thread.yield();
+        boolean block = true;
 
-        while (out == (in + 1) % CircularBuffer.SIZE) {}
+        while (block)
+        {
+            Thread.yield();
 
-        buffer[in] = c;
+            synchronized (this)
+            {
+                block = out == (in + 1) % CircularBuffer.SIZE;
+            }
+        }
 
-        in = (in + 1) % CircularBuffer.SIZE;
+        synchronized (this)
+        {
+            buffer[in] = c;
+        }
+
+        synchronized (this)
+        {
+            in = (in + 1) % CircularBuffer.SIZE;
+        }
     }
 
     /**
@@ -54,7 +85,7 @@ public class CircularBuffer
      */
     public void end()
     {
-        stopped = true;
+        finished.set(true);
     }
 
     /**
@@ -64,6 +95,12 @@ public class CircularBuffer
      */
     public boolean done()
     {
-        return stopped && in == out;
+        boolean b;
+
+        synchronized (this)
+        {
+            b = finished.get() && in == out;
+        }
+        return b;
     }
 }

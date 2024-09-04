@@ -14,7 +14,7 @@ public class ThreadProcessor extends Thread
      */
     public ThreadProcessor()
     {
-        System.out.println("Creating processor thread...");
+        System.out.println(">>> Creating processor thread");
     }
 
     /**
@@ -46,11 +46,13 @@ public class ThreadProcessor extends Thread
                     FileConverter.OUTPUT_BUFFER.set(c);
                 }
             }
+            System.out.println("Thread finished processing buffer!");
             FileConverter.OUTPUT_BUFFER.end();
         }
         catch (Exception e)
         {
-            System.out.println("Cleaning processor thread...");
+            System.out.println("Caught exception: " + e.getMessage());
         }
+        System.out.println("<<< Exiting processor thread");
     }
 }

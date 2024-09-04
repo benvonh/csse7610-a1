@@ -23,7 +23,7 @@ public class ThreadWriter extends Thread
      */
     public ThreadWriter(String fileName) throws IOException
     {
-        System.out.println("Creating writer thread with file name: " + fileName);
+        System.out.println(">>> Creating writer thread with file name: " + fileName);
         writer = new A1Writer(fileName);
     }
 
@@ -39,7 +39,9 @@ public class ThreadWriter extends Thread
         {
             while (!FileConverter.OUTPUT_BUFFER.done())
             {
-                writer.write(FileConverter.OUTPUT_BUFFER.get());
+                char c = FileConverter.OUTPUT_BUFFER.get();
+
+                writer.write(c);
 
                 if (++count == MAX_LINE_SIZE)
                 {
@@ -47,14 +49,16 @@ public class ThreadWriter extends Thread
                     writer.lineBreak();
                 }
             }
+            System.out.println("Thread finished writing to file!");
         }
         catch (Exception e)
         {
-            System.out.println("Cleaning writer thread...");
+            System.out.println("Caught exception: " + e.getMessage());
         }
         finally
         {
             writer.close();
         }
+        System.out.println("<<< Exiting writer thread");
     }
 }
